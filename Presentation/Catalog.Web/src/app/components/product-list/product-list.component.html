@@ -1,0 +1,47 @@
+<div class="toolbar">
+  <app-search-bar (search)="onSearch($event)"></app-search-bar>
+  <app-category-filter (select)="onCategory($event)"></app-category-filter>
+  <button (click)="onAdd()">Add Product</button>
+</div>
+
+<div class="spinner-container" *ngIf="loading">
+  <mat-spinner></mat-spinner>
+</div>
+
+<table *ngIf="!loading">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Category</th>
+      <th>Price</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let p of pagedProducts">
+      <td>{{ p.name }}</td>
+      <td>{{ categoriesMap[p.categoryId || ''] || '—' }}</td>
+      <td>{{ p.price | currency }}</td>
+      <td>
+        <button (click)="onEdit(p.id)">Edit</button>
+        <button (click)="onDelete(p.id)">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div *ngIf="!loading && products.length === 0 " class="no-products">
+  No products found in this category.
+</div>
+
+<div class="pagination-controls" *ngIf="products.length > pageSize">
+  <button [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+    Previous
+  </button>
+
+  <span>Page {{ currentPage }} of {{ totalPages }}</span>
+
+  <button [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+    Next
+  </button>
+</div>

@@ -1,0 +1,36 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET Core Launch (Web)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/Presentation/CatalogAPI/bin/Debug/net8.0/Catalog.API.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/Presentation/CatalogAPI",
+      "stopAtEntry": false,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+        "uriFormat": "%s/swagger" // This appends /swagger to the URL it finds
+      },
+      "env": { "ASPNETCORE_ENVIRONMENT": "Development" }
+    },
+    
+    {
+      "name": "Frontend: Angular",
+      "type": "msedge",
+      "request": "launch",
+      "preLaunchTask": "start-angular",
+      "url": "http://localhost:61329", 
+      "webRoot": "${workspaceFolder}/Presentation/Catalog.Web"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Both (API & Angular)",
+      "configurations": [".NET Core Launch (Web)", "Frontend: Angular"]
+    }
+  ]
+}
