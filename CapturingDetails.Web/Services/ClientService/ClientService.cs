@@ -1,35 +1,18 @@
 using CapturingDetails.Web.Pages;
+using DisplayClientDetails.Web.Settings;
 using Domain.Models;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-namespace CapturingDetails.Web.Services;
+namespace CapturingDetails.Web.Services.ClientService;
 
 public class ClientService : IClientService
 {
-  private const string ApiClientsEndpoint = "api/ClientCapture/Clients";
-  private const string ApiClientsById = "api/ClientCapture/{0}";
-
   private readonly HttpClient _httpClient;
-  private readonly IConfiguration _configuration;
-  private string _apiBaseUrl = string.Empty;
 
-  public ClientService( HttpClient httpClient, IConfiguration configuration )
+  public ClientService( HttpClient httpClient )
   {
     _httpClient = httpClient;
-    _configuration = configuration;
-    _apiBaseUrl = configuration[ "ApiSettings:BaseUrl" ] ?? string.Empty;
-
-    if(string.IsNullOrEmpty( _apiBaseUrl ))
-    {
-      throw new InvalidOperationException( "API Base URL is not configured in appsettings.json" );
-    }
-
-    // Set the base address if it's not already set
-    if(_httpClient.BaseAddress == null)
-    {
-      _httpClient.BaseAddress = new Uri( _apiBaseUrl );
-    }
   }
 
   /// <summary>
@@ -39,8 +22,7 @@ public class ClientService : IClientService
   {
     try
     {
-      var urlPath = $"{_apiBaseUrl}{ApiClientsEndpoint}";
-      var response = await _httpClient.GetFromJsonAsync<List<ClientDetails>>( urlPath );
+      var response = await _httpClient.GetFromJsonAsync<List<ClientDetails>>( ClientCaptureEndpoints.ApiClientsEndpoint );
       return response ?? new List<ClientDetails>();
     }
     catch(HttpRequestException ex)
@@ -60,7 +42,7 @@ public class ClientService : IClientService
   {
     try
     {
-      var response = await _httpClient.GetFromJsonAsync<ClientDetails>( string.Format( ApiClientsById, id ) );
+      var response = await _httpClient.GetFromJsonAsync<ClientDetails>( string.Format( ClientCaptureEndpoints.ApiClientsById, id ) );
       return response;
     }
     catch(HttpRequestException ex)
@@ -90,7 +72,7 @@ public class ClientService : IClientService
         throw new ArgumentException( "Client name is required", nameof( client.ClientName ) );
       }
 
-      var response = await _httpClient.PostAsJsonAsync( ApiClientsEndpoint, client );
+      var response = await _httpClient.PostAsJsonAsync( ClientCaptureEndpoints.ApiClientsEndpoint, client );
       response.EnsureSuccessStatusCode();
 
       var createdClient = await response.Content.ReadFromJsonAsync<ClientDetails>();
@@ -129,7 +111,7 @@ public class ClientService : IClientService
         throw new ArgumentException( "Client name is required", nameof( client.ClientName ) );
       }
 
-      var response = await _httpClient.PutAsJsonAsync( string.Format( ApiClientsById, id ), client );
+      var response = await _httpClient.PutAsJsonAsync( string.Format( ClientCaptureEndpoints.ApiClientsById, id ), client );
       response.EnsureSuccessStatusCode();
 
       var updatedClient = await response.Content.ReadFromJsonAsync<ClientDetails>();
@@ -157,7 +139,7 @@ public class ClientService : IClientService
         throw new ArgumentException( "Client ID is required", nameof( id ) );
       }
 
-      var response = await _httpClient.DeleteAsync( string.Format( ApiClientsById, id ) );
+      var response = await _httpClient.DeleteAsync( string.Format( ClientCaptureEndpoints.ApiClientsById, id ) );
       response.EnsureSuccessStatusCode();
     }
     catch(HttpRequestException ex)

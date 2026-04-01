@@ -1,6 +1,6 @@
 using Domain.Models;
 
-namespace CapturingDetails.Web.Services;
+namespace CapturingDetails.Web.Services.ClientService;
 
 public interface IClientService
 {

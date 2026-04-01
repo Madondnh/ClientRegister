@@ -2,7 +2,7 @@ namespace DisplayClientDetails.Web.Settings;
 
 public class ApiSettings
 {
-    public string BaseUrl { get; set; } = string.Empty;
+    public string BaseClientManagerUrl { get; set; } = string.Empty;
 }
 
 public class AnalyticsEndpoints

@@ -11,13 +11,10 @@ namespace Catalog.API.Controllers
   public class ClientCaptureController : ControllerBase
   {
     private readonly IClientCaptureService _clientCaptureService;
-    private readonly ILocationService _locationService;
 
-
-    public ClientCaptureController( IClientCaptureService clientCaptureService, ILocationService locationService )
+    public ClientCaptureController( IClientCaptureService clientCaptureService)
     {
       _clientCaptureService = clientCaptureService;
-      _locationService = locationService;
     }
 
     /// <summary>
@@ -101,25 +98,6 @@ namespace Catalog.API.Controllers
     {
       await _clientCaptureService.DeleteClientAsync( id );
       return NoContent();
-    }
-
-    [HttpGet( "Locations" )]
-    public async Task<IActionResult> GetLocations()
-    {
-      try
-      {
-        var locations = await _locationService.GetLocationsAsync();
-        return Ok( locations );
-      }
-      catch(Exception ex)
-      {
-        // Log the exception here in a real Cliention app
-        return StatusCode( 500, new
-        {
-          Message = "An error occurred while retrieving Locations.",
-          Details = ex.Message
-        } );
-      }
     }
   }
 }

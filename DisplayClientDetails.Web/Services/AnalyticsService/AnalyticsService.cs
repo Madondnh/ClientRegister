@@ -1,19 +1,16 @@
 using DisplayClientDetails.Web.Settings;
 using Domain.DTOs.ClientAnalyticsDtos;
-using Domain.Models;
 using System.Net.Http.Json;
 
-namespace DisplayClientDetails.Web.Services;
+namespace DisplayClientDetails.Web.Services.AnalyticsService.AnalyticsService;
 
-public class AnalyticsService
+public class AnalyticsService : IAnalyticsService
 {
   private readonly HttpClient _httpClient;
-  private readonly ApiSettings _apiSettings;
 
-  public AnalyticsService( HttpClient httpClient, ApiSettings apiSettings )
+  public AnalyticsService( HttpClient httpClient )
   {
     _httpClient = httpClient;
-    _apiSettings = apiSettings;
   }
 
   public async Task<AnalyticsMetricsDto?> GetAnalyticsMetricsAsync()
