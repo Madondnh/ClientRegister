@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Domain.DTOs.ClientDetailsDtos;
+using Domain.Models;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 

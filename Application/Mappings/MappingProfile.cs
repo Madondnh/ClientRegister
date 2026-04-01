@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Domain.DTOs.ClientDetailsDtos;
+using Domain.Models;
 
 namespace Application.Mappings
 {
@@ -6,7 +8,7 @@ namespace Application.Mappings
   {
     public MappingProfile()
     {
-      // Map Entity -> Record DTO
+      CreateMap<ClientDetails, CreateClientClientDto>().ReverseMap();
     }
   }
 }

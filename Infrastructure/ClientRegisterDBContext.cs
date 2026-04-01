@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Domain.DTOs.ClientDetailsDtos;
+using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure
@@ -30,6 +31,7 @@ namespace Infrastructure
       // Important: Call the base method first
       base.OnModelCreating( modelBuilder );
 
+      modelBuilder.Entity<ClientDetails>().Property( c => c.Id).ValueGeneratedOnAdd();
 
       modelBuilder.Entity<Location>().HasAlternateKey( c => c.LocationName );
 

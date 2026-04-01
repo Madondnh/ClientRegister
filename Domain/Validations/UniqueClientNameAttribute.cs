@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces;
+﻿using Domain.DTOs.ClientDetailsDtos;
+using Domain.Interfaces;
 using Domain.Models;
 using System.ComponentModel.DataAnnotations;
 
@@ -21,7 +22,8 @@ namespace Domain.Validation
       }
 
       var category = repository.GetAllAsync().Result
-        .FirstOrDefault( c => c.ClientName.ToLower() == currentValue.ToLower() && c.Id != ((ClientDetails)instance).Id );
+        .FirstOrDefault( c => c.ClientName.ToLower() == currentValue.ToLower() &&
+         (instance as ClientDetails == null || c.Id != ((ClientDetails)instance).Id ));
 
       if(category != null)
       {

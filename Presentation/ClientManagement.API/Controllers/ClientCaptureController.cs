@@ -1,5 +1,5 @@
 using Application.Interfaces;
-using Application.Services;
+using Domain.DTOs.ClientDetailsDtos;
 using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,14 +23,14 @@ namespace Catalog.API.Controllers
     /// <summary>
     /// Creates a new client in the client registry .
     /// </summary>
-    /// <response code="201">Returns the newly created product.</response>
+    /// <response code="201">Returns the newly created Client.</response>
     [HttpPost]
     [ProducesResponseType( typeof( ClientDetails ), StatusCodes.Status201Created )]
-    public async Task<IActionResult> Create( [FromBody] ClientDetails product )
+    public async Task<IActionResult> Create( [FromBody] CreateClientClientDto Client )
     {
       try
       {
-        var addedClient = await _clientCaptureService.CreateClient( product );
+        var addedClient = await _clientCaptureService.CreateClient( Client );
 
         return CreatedAtAction( nameof( Create ), new
         {
@@ -39,7 +39,7 @@ namespace Catalog.API.Controllers
       }
       catch(Exception ex)
       {
-        // Log the exception here in a real production app
+        // Log the exception here in a real Cliention app
         return StatusCode( 500, new
         {
           Message = "An error occurred while retrieving Locations.",
@@ -62,7 +62,7 @@ namespace Catalog.API.Controllers
       }
       catch(Exception ex)
       {
-        // Log the exception here in a real production app
+        // Log the exception here in a real Cliention app
         return StatusCode( 500, new
         {
           Message = "An error occurred while retrieving clients.",
@@ -71,6 +71,37 @@ namespace Catalog.API.Controllers
       }
     }
 
+    /// <summary>
+    /// Updates an existing Client.
+    /// </summary>
+    /// <param name="id">The ID of the Client to update.</param>
+    /// <param name="ClientName">The updated Client object.</param>
+    /// <response code="204">Update successful.</response>
+    /// <response code="400">If the ID in the URL does not match the ID in the body.</response>
+    [HttpPut( "{id}" )]
+    [ProducesResponseType( StatusCodes.Status204NoContent )]
+    [ProducesResponseType( StatusCodes.Status400BadRequest )]
+    public async Task<IActionResult> Update( string id, [FromBody] ClientDetails Client )
+    {
+      if(id != Client.Id)
+        return BadRequest();
+
+      await _clientCaptureService.UpdateClientAsync( Client );
+      return NoContent();
+    }
+
+    /// <summary>
+    /// Deletes a Client from the system.
+    /// </summary>
+    /// <param name="id">The ID of the Client to remove.</param>
+    /// <response code="204">ClientDto deleted successfully.</response>
+    [HttpDelete( "{id}" )]
+    [ProducesResponseType( StatusCodes.Status204NoContent )]
+    public async Task<IActionResult> Delete( string id )
+    {
+      await _clientCaptureService.DeleteClientAsync( id );
+      return NoContent();
+    }
 
     [HttpGet( "Locations" )]
     public async Task<IActionResult> GetLocations()
@@ -82,7 +113,7 @@ namespace Catalog.API.Controllers
       }
       catch(Exception ex)
       {
-        // Log the exception here in a real production app
+        // Log the exception here in a real Cliention app
         return StatusCode( 500, new
         {
           Message = "An error occurred while retrieving Locations.",

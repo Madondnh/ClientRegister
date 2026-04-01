@@ -14,7 +14,7 @@ namespace Domain.Models
     public string Id
     {
       get => _id;
-      private set => _id = string.IsNullOrEmpty( value ) ? Guid.NewGuid().ToString() : value;
+      set => _id = string.IsNullOrEmpty( value ) ? Guid.NewGuid().ToString() : value;
     }
   }
 }
