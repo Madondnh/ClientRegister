@@ -1,5 +1,5 @@
-using DisplayClientDetails.Web.Models;
 using DisplayClientDetails.Web.Settings;
+using Domain.DTOs.ClientAnalyticsDtos;
 using Domain.Models;
 using System.Net.Http.Json;
 
@@ -20,8 +20,7 @@ public class AnalyticsService
   {
     try
     {
-      var url = $"{_apiSettings.BaseUrl.TrimEnd('/')}/{AnalyticsEndpoints.Metrics}";
-      var response = await _httpClient.GetAsync( url );
+      var response = await _httpClient.GetAsync( AnalyticsEndpoints.Metrics );
       if(response.IsSuccessStatusCode)
       {
         return await response.Content.ReadFromJsonAsync<AnalyticsMetricsDto>();

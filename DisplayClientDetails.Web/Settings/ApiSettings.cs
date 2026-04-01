@@ -7,5 +7,5 @@ public class ApiSettings
 
 public class AnalyticsEndpoints
 {
-    public const string Metrics = "api/analytics/metrics";
+    public const string Metrics = "api/ClientAnalytics/RegistrationMetrics";
 }

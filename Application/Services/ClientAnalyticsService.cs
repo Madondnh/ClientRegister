@@ -29,12 +29,12 @@ public class ClientAnalyticsService : IClientAnalyticsService
 
       UsersPerLocation = analytics
         .GroupBy( a => a.Location )
-        .Select( g => (Location: g.Key, UserCount: g.Sum( a => a.UserCount )) )
+        .Select( g => new UsersPerLocationDto { Location = g.Key, UserCount =  g.Sum( a => a.UserCount ) })
         .ToList(),
 
       ClientsPerDate = analytics
         .GroupBy( a => a.RegistrationDate )
-        .Select( g => (RegistrationDate: g.Key, ClientCount: g.Sum( a => a.ClientCount )) )
+        .Select( g => new ClientsPerDateDto { RegistrationDate = g.Key, ClientCount = g.Sum( a => a.ClientCount ) })
         .ToList()
     };
   }
