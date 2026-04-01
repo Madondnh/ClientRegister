@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Models
 {
@@ -15,8 +16,10 @@ namespace Domain.Models
     public DateTime DateRegistered { get; set; } = DateTime.UtcNow;
 
     [Required( ErrorMessage = "Location is required." )]
-    [StringLength( 200 )]
-    public string Location { get; set; } = string.Empty;
+    public string? LocationId { get; set; } 
+    
+    [ForeignKey(nameof( LocationId) )]
+    public Location Location { get; set; } = new();
 
     [Required]
     [Range( 1, 1000000, ErrorMessage = "Number of users must be at least 1." )]

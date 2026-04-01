@@ -15,6 +15,11 @@ namespace Infrastructure
       get; set;
     }
 
+    public DbSet<Location> Location
+    {
+      get; set;
+    }
+
     public ClientRegisterDBContext( DbContextOptions options ) : base( options )
     {
       
@@ -24,6 +29,9 @@ namespace Infrastructure
     {
       // Important: Call the base method first
       base.OnModelCreating( modelBuilder );
+
+
+      modelBuilder.Entity<Location>().HasAlternateKey( c => c.LocationName );
 
       // Tell EF Core that 'ClientDetailsAnalytics' is a View and has no Primary Key
       modelBuilder.Entity<ClientDetailsAnalytics>( entity =>

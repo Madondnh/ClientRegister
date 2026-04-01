@@ -1,6 +1,6 @@
 ﻿namespace Application.Interfaces
 {
-  public interface IClientCaptureService : IDisposable  
+  public interface IClientCaptureService   
   {
   }
 }

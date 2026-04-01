@@ -30,10 +30,6 @@ namespace Infrastructure.Repository
     #region Methods
 
 
-    public void Dispose()
-    {
-    }
-
     /// <summary>
     ///     Get entity by identifier
     /// </summary>
@@ -179,123 +175,6 @@ namespace Infrastructure.Repository
       }
 
       return null;
-    }
-
-    /// <summary>
-    ///     Inc field for entity
-    /// </summary>
-    /// <typeparam name="U">Value</typeparam>
-    /// <param name="id">Ident record</param>
-    /// <param name="expression">Linq Expression</param>
-    /// <param name="value">value</param>
-    public virtual Task IncField<U>( string id, Expression<Func<T, U>> expression, U value )
-    {
-      var entity = _context.Set<T>().Find( id );
-      switch(value)
-      {
-        case int intValue:
-
-        var intrawValue = Convert.ToInt32( GetProperty( entity, GetName( expression ) ) );
-        var bsonIntValue = intrawValue + intValue;
-
-        UpdateProperty( entity, GetName( expression ), bsonIntValue );
-        _context.Set<T>().Update( entity );
-        break;
-        case long longValue:
-        var longrawValue = Convert.ToInt64( GetProperty( entity, GetName( expression ) ) );
-        var bsonLongValue = longrawValue + longValue;
-        UpdateProperty( entity, GetName( expression ), bsonLongValue );
-        _context.Set<T>().Update( entity );
-        break;
-      }
-
-      return Task.CompletedTask;
-    }
-
-    /// <summary>
-    ///     Add to set - add subdocument
-    /// </summary>
-    /// <typeparam name="U"></typeparam>
-    /// <param name="id"></param>
-    /// <param name="field"></param>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    public virtual Task AddToSet<U>( string id, Expression<Func<T, IEnumerable<U>>> field, U value )
-    {
-      //var collection = Database.GetCollection(Collection.Name);
-      var entity = _dbSet.Find( id );
-      var fieldName = ((MemberExpression)field.Body).Member.Name;
-
-      var entityProp = GetProperty( entity, fieldName );
-      var propAsList = (entityProp as IEnumerable<U>)?.ToList();
-
-      if(propAsList != null)
-      {
-        propAsList.Add( value );
-
-        UpdateProperty( entity, fieldName, propAsList );
-        UpdateProperty( entity, "UpdatedAt", DateTime.UtcNow );
-        
-
-        _dbSet.Update( entity );
-
-        _context.SaveChanges();
-      }
-
-      return Task.CompletedTask;
-    }
-
-    /// <summary>
-    ///     Delete subdocument
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="field"></param>
-    /// <param name="element"></param>
-    /// <returns></returns>
-    public virtual Task Pull( string id, Expression<Func<T, IEnumerable<string>>> field, string element )
-    {
-      //var collection = Database.GetCollection(Collection.Name);
-
-      var fieldName = ((MemberExpression)field.Body).Member.Name;
-
-      if(string.IsNullOrEmpty( id ))
-      {
-        var entities = _dbSet.Where( item => GetProperty( item, fieldName ).Equals( element ) ).ToList();
-
-        foreach(var entity in entities)
-          UpdateEntity( entity );
-      }
-      else
-      {
-        //update one
-        var entities = _dbSet.FirstOrDefault( item => item.Id.Equals( id ) );
-        UpdateEntity( entities );
-      }
-
-      void UpdateEntity( T entity )
-      {
-        var entityProp = GetProperty( entity, fieldName );
-        var propAsList = (entityProp as IEnumerable<string>)?.ToList();
-
-        if(propAsList != null)
-        {
-          //var list = entity[ fieldName ].AsArray.ToList();
-          if(propAsList.Any())
-          {
-            propAsList.Remove( element );
-
-            UpdateProperty( entity, fieldName, propAsList );
-            UpdateProperty( entity, "UpdatedAt", DateTime.UtcNow );
-            
-
-            _dbSet.Update( entity );
-
-            _context.SaveChanges();
-          }
-        }
-      }
-
-      return Task.CompletedTask;
     }
 
     /// <summary>

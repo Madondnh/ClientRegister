@@ -11,7 +11,7 @@ namespace Domain.Interfaces
   /// <summary>
   ///     Repository
   /// </summary>
-  public interface IRepository<T> : IDisposable where T : class
+  public interface IRepository<T> 
   {
     /// <summary>
     ///     Get entity by identifier
@@ -52,34 +52,6 @@ namespace Domain.Interfaces
     /// </summary>
     /// <param name="entity">Entity</param>
     Task<T> UpdateAsync( T entity );
-
-    /// <summary>
-    ///     Inc field for entity
-    /// </summary>
-    /// <typeparam name="U">Value</typeparam>
-    /// <param name="id">Ident record</param>
-    /// <param name="expression">Linq Expression</param>
-    /// <param name="value">value</param>
-    Task IncField<U>( string id, Expression<Func<T, U>> expression, U value );
-
-    /// <summary>
-    ///     Add to set - add subdocument
-    /// </summary>
-    /// <typeparam name="U"></typeparam>
-    /// <param name="id"></param>
-    /// <param name="field"></param>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    Task AddToSet<U>( string id, Expression<Func<T, IEnumerable<U>>> field, U value );
-
-    /// <summary>
-    ///     Delete subdocument
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="field"></param>
-    /// <param name="element"></param>
-    /// <returns></returns>
-    Task Pull( string id, Expression<Func<T, IEnumerable<string>>> field, string element );
 
     /// <summary>
     ///     Delete entity

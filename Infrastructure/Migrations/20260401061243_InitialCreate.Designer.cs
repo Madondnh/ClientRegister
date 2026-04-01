@@ -3,6 +3,7 @@ using System;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ClientRegisterDBContext))]
-    partial class ClientRegisterDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260401061243_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.25");
@@ -30,16 +33,10 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("DateRegistered")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("LocationId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("NumberOfUsers")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("LocationId");
 
                     b.ToTable("ClientDetails");
                 });
@@ -49,7 +46,7 @@ namespace Infrastructure.Migrations
                     b.Property<int>("ClientCount")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Location")
+                    b.Property<string>("LocationId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("RegistrationDate")
@@ -57,6 +54,8 @@ namespace Infrastructure.Migrations
 
                     b.Property<int>("UserCount")
                         .HasColumnType("INTEGER");
+
+                    b.HasIndex("LocationId");
 
                     b.ToTable((string)null);
 
@@ -75,9 +74,6 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LocationName")
-                        .IsUnique();
-
                     b.ToTable("Location");
                 });
 
@@ -85,9 +81,18 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Models.Location", "Location")
                         .WithMany()
-                        .HasForeignKey("LocationId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Location");
+                });
+
+            modelBuilder.Entity("Domain.Models.ClientDetailsAnalytics", b =>
+                {
+                    b.HasOne("Domain.Models.Location", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationId");
 
                     b.Navigation("Location");
                 });

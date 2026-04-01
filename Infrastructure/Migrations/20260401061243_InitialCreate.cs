@@ -6,11 +6,23 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class ClientDetailsAnalyticsModelPropsUpdated : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Location",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    LocationName = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Location", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "ClientDetails",
                 columns: table => new
@@ -18,7 +30,6 @@ namespace Infrastructure.Migrations
                     Id = table.Column<string>(type: "TEXT", nullable: false),
                     ClientName = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
                     DateRegistered = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Location = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
                     NumberOfUsers = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
@@ -32,6 +43,9 @@ namespace Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "ClientDetails");
+
+            migrationBuilder.DropTable(
+                name: "Location");
         }
     }
 }

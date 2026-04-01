@@ -54,7 +54,7 @@ namespace CatalogAPI
             policy =>
             {
               policy.WithOrigins( "http://localhost:61329",
-                                   "http://127.0.0.1:61329") // Your Angular URL
+                                   "http://127.0.0.1:61329" ) // Your Angular URL
                 .AllowAnyHeader()
                 .AllowAnyMethod();
             } );
@@ -111,9 +111,12 @@ namespace CatalogAPI
     {
       builder.Services.AddScoped<IClientCaptureService, ClientCaptureService>();
       builder.Services.AddScoped<IClientAnalyticsService, ClientAnalyticsService>();
+      builder.Services.AddScoped<ILocationService, LocationService>();
 
       builder.Services.AddScoped( typeof( IRepository<> ), typeof( EfRepository<> ) );
       builder.Services.AddScoped( typeof( IViewsRepository<> ), typeof( EfViewsRepository<> ) );
+
+      
     }
   }
 }

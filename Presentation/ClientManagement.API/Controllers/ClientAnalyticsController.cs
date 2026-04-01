@@ -12,6 +12,7 @@ namespace Catalog.API.Controllers
     {
       private readonly IClientAnalyticsService _clientAnalyticsService;
 
+
       public ClientAnalyticsController( IClientAnalyticsService clientAnalyticsService )
       {
         _clientAnalyticsService = clientAnalyticsService;
