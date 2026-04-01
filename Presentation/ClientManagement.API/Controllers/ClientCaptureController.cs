@@ -26,7 +26,7 @@ namespace Catalog.API.Controllers
     /// <response code="201">Returns the newly created Client.</response>
     [HttpPost]
     [ProducesResponseType( typeof( ClientDetails ), StatusCodes.Status201Created )]
-    public async Task<IActionResult> Create( [FromBody] CreateClientClientDto Client )
+    public async Task<IActionResult> Create( [FromBody] CreateClientDto Client )
     {
       try
       {

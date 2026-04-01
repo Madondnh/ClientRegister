@@ -1,0 +1,157 @@
+@namespace CapturingDetails.Web.Components
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+@using CapturingDetails.Web.Services
+@using static Domain.Models.ClientDetails;
+
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject IClientService ClientService
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">@(IsNew ? "Create New Client" : "Edit Client")</MudText>
+    </TitleContent>
+    <DialogContent>
+        <EditForm @ref=form Model="@FormModel" OnValidSubmit="@(HandleValidSubmit)">
+
+            <DataAnnotationsValidator />
+
+            <MudStack Spacing="3">
+                <MudTextField @bind-Value="FormModel.ClientName" Label="Client Name" Variant="Variant.Outlined"
+                For="@(() => FormModel.ClientName)"/>
+
+                <MudTextField @bind-Value="FormModel.LocationId" Label="Location ID" Variant="Variant.Outlined"
+                For="@(() => FormModel.LocationId)"/>
+
+                <MudNumericField @bind-Value="FormModel.NumberOfUsers" Label="Number of Users" Variant="Variant.Outlined"
+                For="@(() => FormModel.NumberOfUsers)"/>
+
+                <MudDatePicker @bind-Value="_date" TextChanged="DatePickerTextChanged" Label="Date Registered" DateFormat="dateFormat" MaxDate="DateTime.Today" />
+                <MudText Color="Color.Error" Typo="Typo.caption">
+                    <ValidationMessage TextColor ="Color.Red" For="@(() => FormModel.DateRegistered )" />
+                </MudText>
+
+            </MudStack>
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Variant="Variant.Text">Cancel</MudButton>
+        <MudButton OnClick="HandleValidSubmit" Variant="Variant.Filled" Color="Color.Primary">
+            @(IsNew ? "Create" : "Update")
+        </MudButton>
+        @if (!IsNew)
+        {
+            <MudButton OnClick="OpenDeleteConfirmation" Variant="Variant.Filled" Color="Color.Error">Delete</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    private const string dateFormat = "dd.MM.yyyy";    
+    private DateTime? _date ;
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public bool IsNew { get; set; } = true;
+
+    [Parameter]
+    public ClientDetails FormModel
+    {
+        get; set;
+    } = new();
+
+    private EditForm? form;
+
+    private EditContext EditContext;
+    private ValidationMessageStore ValidationMessageStore;
+
+    protected override void OnInitialized()
+    {
+        EditContext = new EditContext(FormModel);
+        ValidationMessageStore = new ValidationMessageStore(EditContext);
+
+        // if (IsNew)
+        // {
+        //     FormModel.DateRegistered = DateTime.Today;
+        // }
+    }
+
+    private void DatePickerTextChanged( string value )
+    {
+        FormModel.DateRegistered = _date;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            if(!form.EditContext.Validate())
+                return;
+
+            if (IsNew)
+            {
+                // Set the date registered if not already set
+                if (FormModel.DateRegistered == default)
+                {
+                    FormModel.DateRegistered = DateTime.UtcNow;
+                }
+
+                // Create new client via service
+                await ClientService.CreateClientAsync(FormModel);
+                Snackbar.Add("Client created successfully", Severity.Success);
+            }
+            else
+            {
+                // Update existing client via service
+                await ClientService.UpdateClientAsync(FormModel.Id, FormModel);
+                Snackbar.Add("Client updated successfully", Severity.Success);
+            }
+
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving client: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task OpenDeleteConfirmation()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("ContentText", $"Do you really want to delete '{FormModel.ClientName}'? This action cannot be undone.");
+        parameters.Add("ButtonText", "Delete");
+        parameters.Add("Color", Color.Error);
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm Delete", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await DeleteClient();
+        }
+    }
+
+    private async Task DeleteClient()
+    {
+        try
+        {
+            // Delete client via service
+            await ClientService.DeleteClientAsync(FormModel.Id);
+            Snackbar.Add("Client deleted successfully", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error deleting client: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}

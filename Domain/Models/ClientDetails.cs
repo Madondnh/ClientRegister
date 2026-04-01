@@ -15,7 +15,7 @@ namespace Domain.Models
     [DataType( DataType.DateTime )]
     [Display( Name = "Date Registered" )]
     // Ensures the capture app doesn't accidentally log a future date
-    public DateTime DateRegistered { get; set; } = DateTime.UtcNow;
+    public DateTime? DateRegistered { get; set; } = null;
 
     [Required( ErrorMessage = "Location is required." )]
     public string? LocationId { get; set; } 

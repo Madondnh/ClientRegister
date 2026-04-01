@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Domain.DTOs.ClientAnalyticsDtos;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.API.Controllers
@@ -12,7 +13,6 @@ namespace Catalog.API.Controllers
     {
       private readonly IClientAnalyticsService _clientAnalyticsService;
 
-
       public ClientAnalyticsController( IClientAnalyticsService clientAnalyticsService )
       {
         _clientAnalyticsService = clientAnalyticsService;
@@ -24,7 +24,7 @@ namespace Catalog.API.Controllers
         try
         {
           // The service should return a DTO containing the three metrics
-          var metrics = await _clientAnalyticsService.GetClientAnalytics();
+          var metrics = await _clientAnalyticsService.GetClientAnalyticsAsync();
 
           if(metrics == null)
           {
@@ -44,6 +44,27 @@ namespace Catalog.API.Controllers
             Message = "An error occurred while retrieving analytics.",
             Details = ex.Message
           } );
+        }
+      }
+
+      /// <summary>
+      /// Retrieves a summary of registration metrics including user totals and geographical distribution.
+      /// </summary>
+      /// <returns>A DTO containing user counts, location-based stats, and daily registration trends.</returns>
+      [HttpGet( "RegistrationMetrics" )]
+      [ProducesResponseType( StatusCodes.Status200OK, Type = typeof( AnalyticsMetricsDto ) )]
+      [ProducesResponseType( StatusCodes.Status500InternalServerError )]
+      public async Task<ActionResult<AnalyticsMetricsDto>> GetRegistrationMetrics()
+      {
+        try
+        {
+          var metrics = await _clientAnalyticsService.GetRegistrationMetricsAsync();
+          return Ok( metrics );
+        }
+        catch(Exception ex)
+        {
+          // _logger.LogError(ex, "Failed to fetch metrics");
+          return StatusCode( 500, "Internal server error while fetching metrics" );
         }
       }
     }

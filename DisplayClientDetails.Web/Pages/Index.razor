@@ -1,0 +1,65 @@
+﻿@page "/"
+@inject AnalyticsService AnalyticsService
+
+<PageTitle>Client Analytics</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudText Typo="Typo.h3" GutterBottom="true">Client Analytics Dashboard</MudText>
+
+    @if (isLoading)
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    }
+    else if (metrics != null)
+    {
+        <MudGrid>
+            <MudItem xs="12" sm="4">
+                <MudCard>
+                    <MudCardContent>
+                        <MudText Typo="Typo.h5">Total Users</MudText>
+                        <MudText Typo="Typo.h3" Color="Color.Primary">@metrics.TotalUsers</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+
+        <MudText Typo="Typo.h4" GutterBottom="true" Class="mt-4">Users per Location</MudText>
+        <MudTable Items="metrics.UsersPerLocation" Dense="true" Hover="true">
+            <HeaderContent>
+                <MudTh>Location</MudTh>
+                <MudTh>Users</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Location</MudTd>
+                <MudTd>@context.UserCount</MudTd>
+            </RowTemplate>
+        </MudTable>
+
+        <MudText Typo="Typo.h4" GutterBottom="true" Class="mt-4">Clients per Date</MudText>
+        <MudTable Items="metrics.ClientsPerDate" Dense="true" Hover="true">
+            <HeaderContent>
+                <MudTh>Date</MudTh>
+                <MudTh>Clients</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.RegistrationDate</MudTd>
+                <MudTd>@context.ClientCount</MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+    else
+    {
+        <MudAlert Severity="Severity.Error">Failed to load analytics data. Please check your backend connection.</MudAlert>
+    }
+</MudContainer>
+
+@code {
+    private AnalyticsMetricsDto? metrics;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        metrics = await AnalyticsService.GetAnalyticsMetricsAsync();
+        isLoading = false;
+    }
+}

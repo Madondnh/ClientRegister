@@ -8,7 +8,7 @@ namespace Application.Mappings
   {
     public MappingProfile()
     {
-      CreateMap<ClientDetails, CreateClientClientDto>().ReverseMap();
+      CreateMap<ClientDetails, CreateClientDto>().ReverseMap();
     }
   }
 }

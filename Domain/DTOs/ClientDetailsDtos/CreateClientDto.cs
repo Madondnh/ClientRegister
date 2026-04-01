@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.DTOs.ClientDetailsDtos
 {
-  public class CreateClientClientDto 
+  public class CreateClientDto 
   {
     [Required( ErrorMessage = "Client Name is required." )]
     [StringLength( 150, MinimumLength = 2, ErrorMessage = "Client Name must be between 2 and 150 characters." )]

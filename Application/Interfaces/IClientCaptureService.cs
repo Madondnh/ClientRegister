@@ -5,7 +5,7 @@ namespace Application.Interfaces
 {
   public interface IClientCaptureService
   {
-    Task<ClientDetails> CreateClient( CreateClientClientDto clientDetails );
+    Task<ClientDetails> CreateClient( CreateClientDto clientDetails );
     Task<ClientDetails> UpdateClientAsync( ClientDetails clientDetails );
 
     Task DeleteClientAsync( string id );

@@ -1,0 +1,18 @@
+﻿@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<MudCard>
+    <MudCardContent>
+        <MudText Typo="Typo.h3" GutterBottom="true">Welcome to Client Register</MudText>
+        <MudText Typo="Typo.body1" class="mb-4">
+            Manage and track your client details efficiently. Use the navigation menu to access client management features.
+        </MudText>
+        <MudNavLink Href="/client-details" Match="NavLinkMatch.All">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large">
+                <MudIcon Icon="@Icons.Material.Filled.People" Class="mr-2" />
+                View Client Details
+            </MudButton>
+        </MudNavLink>
+    </MudCardContent>
+</MudCard>

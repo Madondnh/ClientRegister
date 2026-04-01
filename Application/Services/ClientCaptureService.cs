@@ -16,7 +16,7 @@ public class ClientCaptureService : IClientCaptureService
     _mapper = mapper;
   }
 
-  public async Task<ClientDetails> CreateClient( CreateClientClientDto clientDetails )
+  public async Task<ClientDetails> CreateClient( CreateClientDto clientDetails )
   {
     var client = _mapper.Map<ClientDetails>( clientDetails );
     return await _clientDetailsRepository.InsertAsync( client );

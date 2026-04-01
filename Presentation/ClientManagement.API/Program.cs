@@ -53,8 +53,8 @@ namespace CatalogAPI
         options.AddPolicy( "AllowAngularApp",
             policy =>
             {
-              policy.WithOrigins( "http://localhost:61329",
-                                   "http://127.0.0.1:61329" ) // Your Angular URL
+              policy.WithOrigins( "http://localhost:5036",
+                                   "http://localhost:5194" ) // Your Angular URL
                 .AllowAnyHeader()
                 .AllowAnyMethod();
             } );
