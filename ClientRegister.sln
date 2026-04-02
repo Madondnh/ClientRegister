@@ -15,12 +15,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentatio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientManagement.API", "Presentation\ClientManagement.API\ClientManagement.API.csproj", "{1C5ABD71-CBCB-4FA9-B512-9665A1A2A6FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapturingDetails.Web", "CapturingDetails.Web\CapturingDetails.Web.csproj", "{1B485746-32B0-4FC8-97A6-7D5B3F0F40F2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapturingDetails.Web", "Presentation\CapturingDetails.Web\CapturingDetails.Web.csproj", "{1B485746-32B0-4FC8-97A6-7D5B3F0F40F2}"
 	ProjectSection(ProjectDependencies) = postProject
 		{949064B8-ACCD-4F5B-BBA7-556CCAA69672} = {949064B8-ACCD-4F5B-BBA7-556CCAA69672}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DisplayClientDetails.Web", "DisplayClientDetails.Web\DisplayClientDetails.Web.csproj", "{5F61FC84-9472-416B-9DE5-4B404FCEDB96}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DisplayClientDetails.Web", "Presentation\DisplayClientDetails.Web\DisplayClientDetails.Web.csproj", "{5F61FC84-9472-416B-9DE5-4B404FCEDB96}"
 	ProjectSection(ProjectDependencies) = postProject
 		{949064B8-ACCD-4F5B-BBA7-556CCAA69672} = {949064B8-ACCD-4F5B-BBA7-556CCAA69672}
 	EndProjectSection
