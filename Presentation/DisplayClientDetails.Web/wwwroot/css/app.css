@@ -27,6 +27,49 @@ h1:focus {
     color: white;
 }
 
-    .blazor-error-boundary::after {
-        content: "An error has occurred."
+ .blazor-error-boundary::after {
+     content: "An error has occurred."
+ }
+
+
+:root {
+    --mud-primary: #594AE2; /* Match your MudBlazor Primary Color */
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    background-color: #fafafa;
+}
+
+.mud-wasm-loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid #e0e0e0;
+    border-bottom-color: var(--mud-primary);
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+.loading-progress-text {
+    color: #616161;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
     }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
