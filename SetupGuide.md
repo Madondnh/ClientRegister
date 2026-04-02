@@ -38,7 +38,7 @@ Alternatively, paste the following comand in PMC:
 dotnet ef database update  --project ./Infrastructure/Infrastructure.csproj  --startup-project ./Presentation/ClientManagement.Api/ClientManagement.Api.csproj
 ```
 
-## 4 Reset the database (Optional)
+## 4. Reset the database (Optional)
 1. Navigate to the SQLLite db file ( CleanArchitecture.db ) Solution > Src > Presentation  > ClientManagement.API > CleanArchitecture.db
 2. Delete the file
 3. Run Migrations in  Package Manager Console
@@ -46,9 +46,6 @@ paste the following comand in PMC:
 ```
 dotnet ef database update  --project ./Infrastructure/Infrastructure.csproj  --startup-project ./Presentation/ClientManagement.Api/ClientManagement.Api.csproj
 ```
-
-**Note:** The application uses `EnsureCreated()` which will create the database schema automatically on first run, so manual migration may not be necessary.
-
 ## 5. Configure Multiple Startup Projects
 Since the solution has multiple presentation projects, you need to configure Visual Studio to start them simultaneously:
 
