@@ -24,16 +24,21 @@
             <DataAnnotationsValidator />
 
             <MudStack Spacing="3">
-                <MudTextField @bind-Value="FormModel.ClientName" Label="Client Name" Variant="Variant.Text"
+                <MudTextField @bind-Value="FormModel.ClientName" Label="Client Name" Variant="Variant.Text" TextChanged="()=>Errors.Remove(nameof( FormModel.ClientName ))"
                 For="@(() => FormModel.ClientName)" />
 
+                @{ // The following code is a work around to accommodate server side validations for client name
+                    var keyName = nameof( FormModel.ClientName );
+                    if(Errors.ContainsKey( nameof( FormModel.ClientName ) ))
+                    {
+                        <MudText Color="Color.Error" Typo="Typo.caption"> @Errors[ keyName ].FirstOrDefault() </MudText>
+                    }
+                }
+
                 <MudAutocomplete T="Location" Label="Location" ValueChanged="@(date => FormModel.LocationId = date != null? date?.Id: null)"
-                SearchFunc="@(SearchForLocationByName)" @ref=locationRef
-                Value=@(SearchForLocationByID( FormModel?.LocationId ?? "" ))
+                SearchFunc="@(SearchForLocationByName)" Value=@(SearchForLocationByID( FormModel?.LocationId ?? "" ))
                 ResetValueOnEmptyText="@true" ToStringFunc="x => x?.LocationName"
                 CoerceText="@true" CoerceValue="@true" SelectValueOnTab="@true" />
-
-                @* *@
 
                 <MudText Color="Color.Error" Typo="Typo.caption">
                     <ValidationMessage TextColor="Color.Red" For="@(() => FormModel.LocationId )" />
@@ -43,7 +48,7 @@
                 For="@(() => FormModel.NumberOfUsers)" />
 
                 <MudDatePicker TextChanged=" DatePickerTextChanged" Date="@(FormModel?.DateRegistered)"
-                               Label="Date Registered" DateFormat="@(Date.DateDisplayFormat)" MaxDate="DateTime.Today" />
+                Label="Date Registered" DateFormat="@(Date.DateDisplayFormat)" MaxDate="DateTime.Today" />
 
                 <MudText Color="Color.Error" Typo="Typo.caption">
                     <ValidationMessage TextColor="Color.Red" For="@(() => FormModel.DateRegistered )" />
@@ -65,45 +70,43 @@
 </MudDialog>
 
 @code {
-    // private const string dateFormat = "dd.MM.yyyy";
-    // private string dateInput{get;set;}
-
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set;}
 
     [Parameter]
     public bool IsNew { get; set; } = true;
 
     [Parameter]
-    public ClientDetails FormModel { get; set;} = new();
+    public ClientDetails FormModel { get; set; } = new();
 
     private EditForm? formRef;
-    private MudAutocomplete<Location>? locationRef;
+    public Dictionary<string, string[]> Errors { get; set; } = new Dictionary<string, string[]>();
 
     private List<Location> locations = new List<Location>();
 
     protected override async Task OnInitializedAsync()
-    {     
+    {
         locations = await locationService.GetAllLocationsAsync();
 
         StateHasChanged();
     }
 
-    private  async Task<IEnumerable<Location>> SearchForLocationByName( string value )
+    private async Task<IEnumerable<Location>> SearchForLocationByName( string value )
     {
         // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
+        if(string.IsNullOrEmpty( value ))
             return locations;
 
-        return await Task.Run(() => locations.Where( x => x.LocationName.Contains( value, StringComparison.InvariantCultureIgnoreCase ) ));
+        return await Task.Run( () => locations.Where( x => x.LocationName.Contains( value, StringComparison.InvariantCultureIgnoreCase ) ) );
     }
 
     private Location? SearchForLocationByID( string value )
     {
         // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
+        if(string.IsNullOrEmpty( value ))
             return null;
 
-        return locations.FirstOrDefault( x => x.Id.Equals( value, StringComparison.OrdinalIgnoreCase ));
+        return locations.FirstOrDefault( x => x.Id.Equals( value, StringComparison.OrdinalIgnoreCase ) );
     }
 
 
@@ -125,41 +128,61 @@
     {
         try
         {
+            Errors = new Dictionary<string, string[]>();
             if(!formRef?.EditContext?.Validate() ?? false)
                 return;
 
-            if (IsNew)
+            HttpResponseMessage response = null;
+            if(IsNew)
             {
                 // Create new client via service
-                await ClientService.CreateClientAsync(FormModel);
-                Snackbar.Add("Client created successfully", Severity.Success);
+                response = await ClientService.CreateClientAsync( FormModel );
             }
             else
             {
                 // Update existing client via service
-                await ClientService.UpdateClientAsync(FormModel.Id, FormModel);
-                Snackbar.Add("Client updated successfully", Severity.Success);
+                response = await ClientService.UpdateClientAsync( FormModel.Id, FormModel );
             }
 
-            MudDialog.Close(DialogResult.Ok(true));
+            if(response != null && response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                // Parse the JSON error structure you provided
+                var errorResponse = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
+
+                if(errorResponse?.Errors != null)
+                {
+                    foreach(var error in errorResponse.Errors)
+                    {
+                        Errors.Add( error.Key, error.Value );
+                    }
+                }
+
+                StateHasChanged();
+            }
+            else
+            {
+                var msg = IsNew ? "Client updated successfully" : "Client created successfully";
+                Snackbar.Add( msg, Severity.Success );
+                MudDialog.Close( DialogResult.Ok( true ) );
+            }
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
-            Snackbar.Add($"Error saving client: {ex.Message}", Severity.Error);
+            Snackbar.Add( $"Error saving client: {ex.Message}", Severity.Error );
         }
     }
 
     private async Task OpenDeleteConfirmation()
     {
         var parameters = new DialogParameters();
-        parameters.Add("ContentText", $"Do you really want to delete '{FormModel.ClientName}'? This action cannot be undone.");
-        parameters.Add("ButtonText", "Delete");
-        parameters.Add("Color", Color.Error);
+        parameters.Add( "ContentText", $"Do you really want to delete '{FormModel.ClientName}'? This action cannot be undone." );
+        parameters.Add( "ButtonText", "Delete" );
+        parameters.Add( "Color", Color.Error );
 
-        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm Delete", parameters);
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>( "Confirm Delete", parameters );
         var result = await dialog.Result;
 
-        if (!result.Canceled)
+        if(!result.Canceled)
         {
             await DeleteClient();
         }
@@ -170,18 +193,27 @@
         try
         {
             // Delete client via service
-            await ClientService.DeleteClientAsync(FormModel.Id);
-            Snackbar.Add("Client deleted successfully", Severity.Success);
-            MudDialog.Close(DialogResult.Ok(true));
+            await ClientService.DeleteClientAsync( FormModel.Id );
+            Snackbar.Add( "Client deleted successfully", Severity.Success );
+            MudDialog.Close( DialogResult.Ok( true ) );
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
-            Snackbar.Add($"Error deleting client: {ex.Message}", Severity.Error);
+            Snackbar.Add( $"Error deleting client: {ex.Message}", Severity.Error );
         }
     }
 
     private void Cancel()
     {
         MudDialog.Cancel();
+    }
+
+    // Helper class to match the RFC 9110 structure
+    public class ValidationProblemDetails
+    {
+        public Dictionary<string, string[]> Errors
+        {
+            get; set;
+        }
     }
 }

@@ -58,7 +58,7 @@ public class ClientService : IClientService
   /// <summary>
   /// Creates a new client
   /// </summary>
-  public async Task<ClientDetails> CreateClientAsync( ClientDetails client )
+  public async Task<HttpResponseMessage > CreateClientAsync( ClientDetails client )
   {
     try
     {
@@ -72,12 +72,7 @@ public class ClientService : IClientService
         throw new ArgumentException( "Client name is required", nameof( client.ClientName ) );
       }
 
-      var response = await _httpClient.PostAsJsonAsync( ClientCaptureEndpoints.ApiClientsCreateEndpoint, client );
-      response.EnsureSuccessStatusCode();
-
-      var createdClient = await response.Content.ReadFromJsonAsync<ClientDetails>();
-      ;
-      return createdClient ?? throw new Exception( "Failed to create client: Empty response" );
+      return await _httpClient.PostAsJsonAsync( ClientCaptureEndpoints.ApiClientsCreateEndpoint, client );
     }
     catch(HttpRequestException ex)
     {
@@ -92,7 +87,7 @@ public class ClientService : IClientService
   /// <summary>
   /// Updates an existing client
   /// </summary>
-  public async Task<ClientDetails> UpdateClientAsync( string id, ClientDetails client )
+  public async Task<HttpResponseMessage> UpdateClientAsync( string id, ClientDetails client )
   {
     try
     {
@@ -111,11 +106,7 @@ public class ClientService : IClientService
         throw new ArgumentException( "Client name is required", nameof( client.ClientName ) );
       }
 
-      var response = await _httpClient.PutAsJsonAsync( string.Format( ClientCaptureEndpoints.ApiClientsById, id ), client );
-      response.EnsureSuccessStatusCode();
-
-      var updatedClient = await response.Content.ReadFromJsonAsync<ClientDetails>();
-      return updatedClient ?? throw new Exception( "Failed to update client: Empty response" );
+      return await _httpClient.PutAsJsonAsync( string.Format( ClientCaptureEndpoints.ApiClientsById, id ), client );
     }
     catch(HttpRequestException ex)
     {

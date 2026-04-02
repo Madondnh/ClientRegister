@@ -17,12 +17,12 @@ public interface IClientService
     /// <summary>
     /// Creates a new client
     /// </summary>
-    Task<ClientDetails> CreateClientAsync(ClientDetails client);
+    Task<HttpResponseMessage> CreateClientAsync(ClientDetails client);
 
     /// <summary>
     /// Updates an existing client
     /// </summary>
-    Task<ClientDetails> UpdateClientAsync(string id, ClientDetails client);
+    Task<HttpResponseMessage> UpdateClientAsync(string id, ClientDetails client);
 
     /// <summary>
     /// Deletes a client by ID
