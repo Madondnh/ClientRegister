@@ -9,19 +9,12 @@ This guide provides step-by-step instructions for building, running database mig
 - **Git** for cloning the repository
 - **SQL Server** or **SQLite** (the project uses SQLite by default)
 
-## 1. Clone the Repository
-1. Open a command prompt or Git Bash
-2. Navigate to your desired workspace directory
-3. Run: `git clone <repository-url>`
-4. Navigate to the cloned directory: `cd ClientRegister`
+## 1. Open the Solution in Visual Studio
+1. Navigate to solution root folder
+2. launch solution file with Visual Studio 2022
+2. Allow the project to load 
 
-## 2. Open the Solution in Visual Studio
-1. Launch Visual Studio 2022
-2. Select **Open a project or solution**
-3. Navigate to the `ClientRegister` folder and select `ClientRegister.sln`
-4. Click **Open**
-
-## 3. Build the Solution
+## 2. Build the Solution
 1. In Visual Studio, ensure the solution is loaded
 2. From the menu, select **Build > Build Solution** (or press Ctrl+Shift+B)
 3. Verify that all projects build successfully without errors
@@ -31,7 +24,7 @@ Alternatively, you can build from the command line:
 dotnet build ClientRegister.sln
 ```
 
-## 4. Run Database Migrations
+## 3. Run Database Migrations
 The solution uses Entity Framework Core with SQLite. The database is automatically created when the application starts, but if you need to run migrations manually:
 
 1. Open the Package Manager Console in Visual Studio:
@@ -40,10 +33,18 @@ The solution uses Entity Framework Core with SQLite. The database is automatical
 3. Set the Startup Project to **ClientManagement.API** (or another API project)
 4. Run: `Update-Database`
 
-Alternatively, from command line:
+Alternatively, paste the following comand in PMC:
 ```
-cd Presentation\ClientManagement.API
-dotnet ef database update
+dotnet ef database update  --project ./Infrastructure/Infrastructure.csproj  --startup-project ./Presentation/ClientManagement.Api/ClientManagement.Api.csproj
+```
+
+## 4 Reset the database (Optional)
+1. Navigate to the SQLLite db file ( CleanArchitecture.db ) Solution > Src > Presentation  > ClientManagement.API > CleanArchitecture.db
+2. Delete the file
+3. Run Migrations in  Package Manager Console
+paste the following comand in PMC:
+```
+dotnet ef database update  --project ./Infrastructure/Infrastructure.csproj  --startup-project ./Presentation/ClientManagement.Api/ClientManagement.Api.csproj
 ```
 
 **Note:** The application uses `EnsureCreated()` which will create the database schema automatically on first run, so manual migration may not be necessary.
