@@ -1,4 +1,4 @@
-using Domain.DTOs.ClientAnalyticsDtos;
+using Domain.DTOs;
 
 namespace DisplayClientDetails.Web.Services.AnalyticsService;
 

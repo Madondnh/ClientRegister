@@ -53,20 +53,64 @@ namespace Catalog.API
                 NumberOfUsers = 1200,
                 DateRegistered = DateTime.Parse("2024-03-05")
             },
-
+             //#####   2
             // Location: Cape Town (Multiple clients, different dates)
             new ClientDetails {
-                ClientName = "Table Mountain Tech",
+                ClientName = "Table Mountain Tech2",
                 Location =  locations[ random.Next( locations.Count - 1 )],
                 NumberOfUsers = 50,
-                DateRegistered = DateTime.Parse("2024-03-05")
+                DateRegistered = DateTime.Parse("2024-02-05")
             },
             new ClientDetails {
-                ClientName = "Atlantic Devs",
+                ClientName = "Atlantic Devs2",
                 Location =  locations[ random.Next( locations.Count - 1 )],
                 NumberOfUsers = 80,
                 DateRegistered = DateTime.UtcNow.AddDays(-1) // Testing dynamic dates
+            },
+                        // Location: New York (Testing 'Users per Location')
+            new ClientDetails {
+                ClientName = "TechCorp Solutions",
+                Location = locations[ random.Next( locations.Count - 1 )],
+                NumberOfUsers = 150,
+                DateRegistered = DateTime.Parse("2024-3-15")
+            },
+            new ClientDetails {
+                ClientName = "Gotham Media3",
+                Location = locations[ random.Next( locations.Count - 1 )],
+                NumberOfUsers = 300,
+                DateRegistered = DateTime.Parse("2024-03-15") // Same date for 'Clients per Date' test
+            },
+
+            // Location: London
+            new ClientDetails {
+                ClientName = "Global Finance Ltd3",
+                Location = locations[ random.Next( locations.Count - 1 )],
+                NumberOfUsers = 500,
+                DateRegistered = DateTime.Parse("2024-03-10")
+            },
+
+            // Location: Tokyo
+            new ClientDetails {
+                ClientName = "Neo-Tokyo Robotics3",
+                Location = locations[ random.Next( locations.Count - 1 )],
+                NumberOfUsers = 1200,
+                DateRegistered = DateTime.Parse("2024-03-03")
+            },
+
+            // Location: Cape Town (Multiple clients, different dates)
+            new ClientDetails {
+                ClientName = "Table Mountain 3Tech",
+                Location =  locations[ random.Next( locations.Count - 1 )],
+                NumberOfUsers = 50,
+                DateRegistered = DateTime.Parse("2023-03-05")
+            },
+            new ClientDetails {
+                ClientName = "Atlantic Devs3",
+                Location =  locations[ random.Next( locations.Count - 1 )],
+                NumberOfUsers = 80,
+                DateRegistered = DateTime.UtcNow.AddDays(-5) // Testing dynamic dates
             }
+
         };
 
       await context.ClientDetails.AddRangeAsync( clients );

@@ -11,6 +11,6 @@
     {
       get; set;
     }
-    public string RegistrationDate { get; set; } = string.Empty;
+    public DateOnly RegistrationDate { get; set; }
   }
 }

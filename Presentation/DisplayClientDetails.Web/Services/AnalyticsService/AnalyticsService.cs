@@ -1,5 +1,5 @@
 using DisplayClientDetails.Web.Settings;
-using Domain.DTOs.ClientAnalyticsDtos;
+using Domain.DTOs;
 using System.Net.Http.Json;
 
 namespace DisplayClientDetails.Web.Services.AnalyticsService.AnalyticsService;

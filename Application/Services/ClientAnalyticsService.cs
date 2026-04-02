@@ -1,5 +1,5 @@
 ﻿using Application.Interfaces;
-using Domain.DTOs.ClientAnalyticsDtos;
+using Domain.DTOs;
 using Domain.Interfaces;
 using Domain.Models;
 

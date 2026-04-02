@@ -1,8 +1,8 @@
-﻿namespace Domain.DTOs.ClientAnalyticsDtos
+﻿namespace Domain.DTOs
 {
   public class ClientsPerDateDto
   {
-    public string RegistrationDate
+    public DateOnly RegistrationDate
     {
       get; set;
     }

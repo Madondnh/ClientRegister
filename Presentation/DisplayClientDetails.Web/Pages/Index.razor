@@ -1,54 +1,176 @@
 ﻿@page "/"
 @using DisplayClientDetails.Web.Services.AnalyticsService
-@using Domain.DTOs.ClientAnalyticsDtos;
+@using Domain.DTOs
 
 @inject IAnalyticsService AnalyticsService
 
+<style>
+    .pdf-container {
+        background-color: #ffffff;
+        padding: 40px;
+        margin: 20px auto;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        width: 95%;
+        max-width: 1400px;
+    }
+
+    .report-header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 3px solid #1976d2;
+    }
+
+    .report-title {
+        font-weight: 600;
+        color: #1a1a1a;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+    }
+
+    .report-date {
+        color: #666666;
+        font-style: italic;
+    }
+
+    .section-padding {
+        margin-bottom: 35px;
+        padding: 20px 0;
+    }
+
+    .section-heading {
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 15px;
+        padding-left: 5px;
+        border-left: 4px solid #1976d2;
+    }
+
+    .metric-card {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .grid-container {
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .grid-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background-color: #1976d2;
+        color: white;
+        font-weight: 600;
+        padding: 0;
+    }
+
+    .header-cell {
+        padding: 15px 20px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .grid-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background-color 0.2s;
+    }
+
+    .grid-row:hover {
+        background-color: #fafafa;
+    }
+
+    .grid-cell {
+        padding: 12px 20px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+    }
+
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+        gap: 10px;
+    }
+
+    .loading-container {
+        display: flex;
+        justify-content: center;
+        padding: 40px;
+    }
+</style>
+
 <PageTitle>Client Analytics</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Large">
-    <MudText Typo="Typo.h3" GutterBottom="true">Client Analytics Dashboard</MudText>
+<MudContainer MaxWidth="MaxWidth.Large" Class="pdf-container">
+    <!-- Report Header -->
+    <div class="report-header">
+        <MudText Typo="Typo.h2" Align="Align.Center" Class="report-title">Client Analytics Report</MudText>
+        <MudText Typo="Typo.subtitle1" Align="Align.Center" Class="report-date">Generated on @DateTime.Now.ToString("MMMM dd, yyyy")</MudText>
+    </div>
 
     @if (isLoading)
     {
-        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        <div class="loading-container">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </div>
     }
     else if (metrics != null)
     {
-        <MudGrid>
-            <MudItem xs="12" sm="4">
-                <MudCard>
-                    <MudCardContent>
-                        <MudText Typo="Typo.h5">Total Users</MudText>
-                        <MudText Typo="Typo.h3" Color="Color.Primary">@metrics.TotalUsers</MudText>
-                    </MudCardContent>
-                </MudCard>
-            </MudItem>
-        </MudGrid>
+        <!-- Analytics Cards Section -->
+        <div class="section-padding">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudCard Elevation="2">
+                        <MudCardContent>
+                            <MudGrid>
+                                <MudItem xs="12" sm="6" md="3">
+                                    <div class="metric-card">
+                                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">Total Users</MudText>
+                                        <MudText Typo="Typo.h3" Color="Color.Primary">@metrics.TotalUsers</MudText>
+                                    </div>
+                                </MudItem>
+                            </MudGrid>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            </MudGrid>
+        </div>
 
-        <MudText Typo="Typo.h4" GutterBottom="true" Class="mt-4">Users per Location</MudText>
-        <MudTable Items="metrics.UsersPerLocation" Dense="true" Hover="true">
-            <HeaderContent>
-                <MudTh>Location</MudTh>
-                <MudTh>Users</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd>@context.Location</MudTd>
-                <MudTd>@context.UserCount</MudTd>
-            </RowTemplate>
-        </MudTable>
+        <!-- Users per Location Section -->
+        <div class="section-padding">
 
-        <MudText Typo="Typo.h4" GutterBottom="true" Class="mt-4">Clients per Date</MudText>
-        <MudTable Items="metrics.ClientsPerDate" Dense="true" Hover="true">
-            <HeaderContent>
-                <MudTh>Date</MudTh>
-                <MudTh>Clients</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd>@context.RegistrationDate</MudTd>
-                <MudTd>@context.ClientCount</MudTd>
-            </RowTemplate>
-        </MudTable>
+            <MudText Typo="Typo.h4" Class="section-heading">Users Per Location</MudText>
+
+        <MudDataGrid T="UsersPerLocationDto" Items="@metrics.UsersPerLocation" RowsPerPage="5" SortMode="@_sortMode">
+                <Columns>
+                <PropertyColumn Property="x => x.Location"  />
+                    <PropertyColumn Property="x => x.UserCount" Title="User Count" />
+                </Columns>
+                <PagerContent>
+                    <MudDataGridPager T="UsersPerLocationDto" PageSizeOptions="new int[]{10, 25}" />
+                </PagerContent>
+            </MudDataGrid>
+        </div>
+
+        <!-- Clients per Date Section -->
+        <div class="section-padding">
+            <MudText Typo="Typo.h4" Class="section-heading">Clients Per Date</MudText>
+
+            <MudDataGrid T="ClientsPerDateDto" Items="@metrics.ClientsPerDate" RowsPerPage="5" SortMode="@_sortMode">
+                <Columns>
+                    <PropertyColumn Property="x => x.RegistrationDate.ToString(Date.DateDisplayFormat)" Title="Registration Date" />
+                    <PropertyColumn Property="x => x.ClientCount" Title="Client Count" />
+                </Columns>
+                <PagerContent>
+                    <MudDataGridPager T="ClientsPerDateDto" PageSizeOptions="new int[]{10, 25}" />
+                </PagerContent>
+            </MudDataGrid>
+        </div>
     }
     else
     {
@@ -59,6 +181,8 @@
 @code {
     private AnalyticsMetricsDto? metrics;
     private bool isLoading = true;
+
+    private SortMode _sortMode = SortMode.Multiple;
 
     protected override async Task OnInitializedAsync()
     {
