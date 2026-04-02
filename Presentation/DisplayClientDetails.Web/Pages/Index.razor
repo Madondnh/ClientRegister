@@ -1,7 +1,9 @@
 ﻿@page "/"
 @using DisplayClientDetails.Web.Services.AnalyticsService
 @using Domain.DTOs
+@implements IDisposable
 
+@inject ISnackbar Snackbar
 @inject IAnalyticsService AnalyticsService
 
 <style>
@@ -184,9 +186,57 @@
 
     private SortMode _sortMode = SortMode.Multiple;
 
+    // Controls the background polling
+    private readonly CancellationTokenSource _cts = new();
     protected override async Task OnInitializedAsync()
     {
         metrics = await AnalyticsService.GetAnalyticsMetricsAsync();
         isLoading = false;
+
+        // Start the background polling task (Don't await it here)
+        _ = PollApiAsync();
+    }
+
+    private async Task PollApiAsync()
+    {
+        using var timer = new PeriodicTimer( TimeSpan.FromSeconds( 4 ) );
+
+        try
+        {
+            // timer.WaitForNextTickAsync respects the CancellationToken
+            while(await timer.WaitForNextTickAsync( _cts.Token ))
+            {
+                await FetchDataUpdate();
+            }
+        }
+        catch(OperationCanceledException ex)
+        {
+            Snackbar.Add( $"Error retrieving live date: {ex.Message}" );
+        }
+    }
+
+    private async Task FetchDataUpdate()
+    {
+        try
+        {
+            metrics = await AnalyticsService.GetAnalyticsMetricsAsync();
+
+            if(metrics != null)
+            {
+                // Force UI refresh because we are in a background task
+                await InvokeAsync( StateHasChanged );
+            }
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine( $"Poll failed: {ex.Message}" );
+        }
+    }
+
+    public void Dispose()
+    {
+        // Stop the timer and cancel pending requests
+        _cts.Cancel();
+        _cts.Dispose();
     }
 }
