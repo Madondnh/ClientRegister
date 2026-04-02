@@ -21,13 +21,17 @@ namespace Domain.Validation
         return ValidationResult.Success;
       }
 
-      var category = repository.GetAllAsync().Result
-        .FirstOrDefault( c => c.ClientName.ToLower() == currentValue.ToLower() &&
-         (instance as ClientDetails == null || c.Id != ((ClientDetails)instance).Id ));
-
-      if(category != null)
+      //server side validation logic 
+      if(repository!=null)
       {
-        return new ValidationResult( ErrorMessage );
+        var category = repository.GetAllAsync().Result
+          .FirstOrDefault( c => c.ClientName.ToLower() == currentValue.ToLower() &&
+           (instance as ClientDetails == null || c.Id != ((ClientDetails)instance).Id) );
+
+        if(category != null)
+        {
+          return new ValidationResult( ErrorMessage );
+        }
       }
 
       return ValidationResult.Success;

@@ -72,7 +72,7 @@ public class ClientService : IClientService
         throw new ArgumentException( "Client name is required", nameof( client.ClientName ) );
       }
 
-      var response = await _httpClient.PostAsJsonAsync( ClientCaptureEndpoints.ApiClientsEndpoint, client );
+      var response = await _httpClient.PostAsJsonAsync( ClientCaptureEndpoints.ApiClientsCreateEndpoint, client );
       response.EnsureSuccessStatusCode();
 
       var createdClient = await response.Content.ReadFromJsonAsync<ClientDetails>();

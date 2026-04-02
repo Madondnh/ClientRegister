@@ -1,18 +1,179 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+@using System.Net.Http.Json
+@using CapturingDetails.Web.Services
+@using CapturingDetails.Web.Services.ClientService
+@using DisplayClientDetails.Web.Settings
+@using MudBlazor
+
+@namespace CapturingDetails.Web.Pages
+@inject HttpClient Http
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject IClientService ClientService
+@inject ILocationService locationService
+
+<PageTitle>Client Details</PageTitle>
 
 <MudCard>
-    <MudCardContent>
-        <MudText Typo="Typo.h3" GutterBottom="true">Welcome to Client Register</MudText>
-        <MudText Typo="Typo.body1" class="mb-4">
-            Manage and track your client details efficiently. Use the navigation menu to access client management features.
-        </MudText>
-        <MudNavLink Href="/client-details" Match="NavLinkMatch.All">
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large">
-                <MudIcon Icon="@Icons.Material.Filled.People" Class="mr-2" />
-                View Client Details
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h4">Client Details</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="async() => await OpenClientDialog(true)">
+                <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-2" />
+                New Client
             </MudButton>
-        </MudNavLink>
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudCardContent>
+        @if(IsLoading)
+        {
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+            <MudText Class="mt-4">Loading client details...</MudText>
+        }
+        else if(Clients == null || Clients.Count == 0)
+        {
+            <MudText>No client details found.</MudText>
+        }
+        else
+        {
+            <MudTable Items="@Clients" T="@ClientDetails" Dense="true" Hover="true" Striped="true"
+            CurrentPage="@CurrentPage" RowsPerPage="@PageSize">
+                <HeaderContent>
+                    <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<ClientDetails, object>(x=>x.ClientName)">Client Name</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<ClientDetails, object>(x=>x.DateRegistered)">Date Registered</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<ClientDetails, object>(x=>GetLocationByKey(x.LocationId))">Location</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<ClientDetails, object>(x=>x.NumberOfUsers)">Number of Users</MudTableSortLabel></MudTh>
+                    <MudTh Style="text-align:center">Actions</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Client Name">@context.ClientName</MudTd>
+                    <MudTd DataLabel="Date Registered">@(context.DateRegistered.GetValueOrDefault().ToString( Date.DateDisplayFormat ))</MudTd>
+                    <MudTd DataLabel="Location">@GetLocationByKey(context.LocationId)</MudTd>
+                    <MudTd DataLabel="Number of Users">@context.NumberOfUsers</MudTd>
+                    <MudTd Style="text-align:center">
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Edit" Color="Color.Info"
+                        OnClick="@(async() => await OpenClientDialog(false, context))" />
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
+                        OnClick="@(() => OpenDeleteConfirmation(context))" />
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[]{10, 25, 50}" />
+                </PagerContent>
+            </MudTable>
+        }
     </MudCardContent>
 </MudCard>
+
+@code {
+    private List<ClientDetails> Clients = new();
+    private int CurrentPage = 0;
+    private int PageSize = 10;
+    private bool IsLoading = true;
+    private Dictionary<string, string> locations = new Dictionary<string, string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLocations();
+        await LoadClients();
+    }
+
+    private async Task LoadLocations()
+    {
+        try
+        {
+            IsLoading = true;
+            // Load clients from the API using the service
+            var locationList = await locationService.GetAllLocationsAsync();
+            foreach( var location in locationList )
+            {
+                locations.Add( location.Id, location.LocationName );
+            }
+
+            IsLoading = false;
+        }
+        catch(Exception ex)
+        {
+            Snackbar.Add( $"Error loading locations: {ex.Message}", Severity.Error );
+            IsLoading = false;
+        }
+    }
+
+    private string GetLocationByKey( string key )
+    {
+        locations.TryGetValue( key, out string location );
+
+        return location;
+    }
+
+    private async Task LoadClients()
+    {
+        try
+        {
+            IsLoading = true;
+            // Load clients from the API using the service
+            Clients = await ClientService.GetAllClientsAsync();
+            IsLoading = false;
+        }
+        catch(Exception ex)
+        {
+            Snackbar.Add( $"Error loading clients: {ex.Message}", Severity.Error );
+            IsLoading = false;
+        }
+    }
+
+    private async Task OpenClientDialog( bool isCreate, ClientDetails? client = null  )
+    {
+        var parameters = new DialogParameters<ClientDetailsForm>
+        {
+            { x => x.IsNew,isCreate},
+            { x => x.FormModel,client??new ClientDetails()},
+        };
+
+        var options = new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth=true};
+
+        string title = isCreate ? "Create New Client" : $"Edit {client?.ClientName}";
+        var dialog = await DialogService.ShowAsync<ClientDetailsForm>( title, parameters, options );
+        var result = await dialog.Result;
+
+        if(!result.Canceled)
+        {
+            await LoadClients();
+        }
+    }
+
+    private async Task OpenDeleteConfirmation( ClientDetails client )
+    {
+        var parameters = new DialogParameters();
+        parameters.Add( "ContentText", $"Do you really want to delete '{client.ClientName}'? This action cannot be undone." );
+        parameters.Add( "ButtonText", "Delete" );
+        parameters.Add( "Color", Color.Error );
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>( "Confirm Delete", parameters );
+        var result = await dialog.Result;
+
+        if(!result.Canceled)
+        {
+            await DeleteClient( client.Id );
+            await LoadClients();
+        }
+    }
+
+    private async Task DeleteClient( string clientId )
+    {
+        try
+        {
+            // Delete client using the service
+            await ClientService.DeleteClientAsync( clientId );
+            Snackbar.Add( "Client deleted successfully", Severity.Success );
+        }
+        catch(Exception ex)
+        {
+            Snackbar.Add( $"Error deleting client: {ex.Message}", Severity.Error );
+        }
+    }
+}
+

@@ -1,8 +1,10 @@
 @using System.ComponentModel.DataAnnotations
 @using CapturingDetails.Web.Services.ClientService
+@using DisplayClientDetails.Web.Settings
 @using Microsoft.AspNetCore.Components.Forms
 @using MudBlazor
 @using CapturingDetails.Web.Services
+@using System.Globalization
 @using static Domain.Models.ClientDetails;
 
 @namespace CapturingDetails.Web.Components
@@ -17,27 +19,32 @@
         <MudText Typo="Typo.h6">@(IsNew ? "Create New Client" : "Edit Client")</MudText>
     </TitleContent>
     <DialogContent>
-        <EditForm @ref=form Model="@FormModel" OnValidSubmit="@(HandleValidSubmit)">
+        <EditForm @ref=formRef Model="@FormModel" OnValidSubmit="@(HandleValidSubmit)">
 
             <DataAnnotationsValidator />
 
             <MudStack Spacing="3">
                 <MudTextField @bind-Value="FormModel.ClientName" Label="Client Name" Variant="Variant.Text"
-                              For="@(() => FormModel.ClientName)" />
+                For="@(() => FormModel.ClientName)" />
 
-                <MudAutocomplete T="Location" Label="Location" ValueChanged="@(date => FormModel.LocationId = date.Id)"
-                                 SearchFunc="@(SearchForLocationByName)"
-                                 ResetValueOnEmptyText="@true" ToStringFunc="x => x.LocationName"
-                                 CoerceText="@true" CoerceValue="@true" SelectValueOnTab="@true" />
+                <MudAutocomplete T="Location" Label="Location" ValueChanged="@(date => FormModel.LocationId = date != null? date?.Id: null)"
+                SearchFunc="@(SearchForLocationByName)" @ref=locationRef
+                Value=@(SearchForLocationByID( FormModel?.LocationId ?? "" ))
+                ResetValueOnEmptyText="@true" ToStringFunc="x => x?.LocationName"
+                CoerceText="@true" CoerceValue="@true" SelectValueOnTab="@true" />
+
+                @* *@
 
                 <MudText Color="Color.Error" Typo="Typo.caption">
                     <ValidationMessage TextColor="Color.Red" For="@(() => FormModel.LocationId )" />
                 </MudText>
 
                 <MudNumericField @bind-Value="FormModel.NumberOfUsers" Label="Number of Users" Variant="Variant.Text"
-                                 For="@(() => FormModel.NumberOfUsers)" />
+                For="@(() => FormModel.NumberOfUsers)" />
 
-                <MudDatePicker @bind-Value="_date" TextChanged="DatePickerTextChanged" Label="Date Registered" DateFormat="dateFormat" MaxDate="DateTime.Today" />
+                <MudDatePicker TextChanged=" DatePickerTextChanged" Date="@(FormModel?.DateRegistered)"
+                               Label="Date Registered" DateFormat="@(Date.DateDisplayFormat)" MaxDate="DateTime.Today" />
+
                 <MudText Color="Color.Error" Typo="Typo.caption">
                     <ValidationMessage TextColor="Color.Red" For="@(() => FormModel.DateRegistered )" />
                 </MudText>
@@ -58,8 +65,8 @@
 </MudDialog>
 
 @code {
-    private const string dateFormat = "dd.MM.yyyy";    
-    private DateTime? _date ;
+    // private const string dateFormat = "dd.MM.yyyy";
+    // private string dateInput{get;set;}
 
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
 
@@ -69,13 +76,16 @@
     [Parameter]
     public ClientDetails FormModel { get; set;} = new();
 
-    private EditForm? form;
+    private EditForm? formRef;
+    private MudAutocomplete<Location>? locationRef;
 
     private List<Location> locations = new List<Location>();
 
     protected override async Task OnInitializedAsync()
     {     
         locations = await locationService.GetAllLocationsAsync();
+
+        StateHasChanged();
     }
 
     private  async Task<IEnumerable<Location>> SearchForLocationByName( string value )
@@ -87,16 +97,35 @@
         return await Task.Run(() => locations.Where( x => x.LocationName.Contains( value, StringComparison.InvariantCultureIgnoreCase ) ));
     }
 
+    private Location? SearchForLocationByID( string value )
+    {
+        // if text is null or empty, show complete list
+        if (string.IsNullOrEmpty(value))
+            return null;
+
+        return locations.FirstOrDefault( x => x.Id.Equals( value, StringComparison.OrdinalIgnoreCase ));
+    }
+
+
     private void DatePickerTextChanged( string value )
     {
-        FormModel.DateRegistered = _date;
+        FormModel.DateRegistered = null;
+
+        if(!string.IsNullOrEmpty( value ))
+        {
+            if(DateTime.TryParseExact( value, Date.DateDisplayFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime newDate ))
+            {
+                FormModel.DateRegistered = newDate;
+            }
+        }
     }
+
 
     private async Task HandleValidSubmit()
     {
         try
         {
-            if( !form?.EditContext?.Validate()??false)
+            if(!formRef?.EditContext?.Validate() ?? false)
                 return;
 
             if (IsNew)

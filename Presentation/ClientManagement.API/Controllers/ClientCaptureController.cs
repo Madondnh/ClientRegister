@@ -73,18 +73,30 @@ namespace Catalog.API.Controllers
     /// </summary>
     /// <param name="id">The ID of the Client to update.</param>
     /// <param name="ClientName">The updated Client object.</param>
-    /// <response code="204">Update successful.</response>
+    /// <response code="200">Update successful.</response>
     /// <response code="400">If the ID in the URL does not match the ID in the body.</response>
     [HttpPut( "{id}" )]
     [ProducesResponseType( StatusCodes.Status204NoContent )]
     [ProducesResponseType( StatusCodes.Status400BadRequest )]
     public async Task<IActionResult> Update( string id, [FromBody] ClientDetails Client )
     {
-      if(id != Client.Id)
-        return BadRequest();
+      try
+      {
+        if(id != Client.Id)
+          return BadRequest();
 
-      await _clientCaptureService.UpdateClientAsync( Client );
-      return NoContent();
+        var record = await _clientCaptureService.UpdateClientAsync( Client );
+        return Ok( record );
+      }
+      catch(Exception ex)
+      {
+        // Log the exception here in a real production app
+        return StatusCode( 500, new
+        {
+          Message = "An error occurred while updating client details",
+          Details = ex.Message
+        } );
+      }
     }
 
     /// <summary>
@@ -96,8 +108,20 @@ namespace Catalog.API.Controllers
     [ProducesResponseType( StatusCodes.Status204NoContent )]
     public async Task<IActionResult> Delete( string id )
     {
-      await _clientCaptureService.DeleteClientAsync( id );
-      return NoContent();
+      try
+      {
+        await _clientCaptureService.DeleteClientAsync( id );
+        return NoContent();
+      }
+      catch(Exception ex)
+      {
+        // Log the exception here in a real production app
+        return StatusCode( 500, new
+        {
+          Message = "An error occurred while deleting client details",
+          Details = ex.Message
+        } );
+      }
     }
   }
 }
