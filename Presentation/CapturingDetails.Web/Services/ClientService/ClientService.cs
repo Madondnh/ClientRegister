@@ -1,7 +1,5 @@
-using CapturingDetails.Web.Pages;
-using DisplayClientDetails.Web.Settings;
+using CapturingDetails.Web.Settings;
 using Domain.Models;
-using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace CapturingDetails.Web.Services.ClientService;

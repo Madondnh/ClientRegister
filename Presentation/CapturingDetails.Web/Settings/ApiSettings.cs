@@ -1,4 +1,4 @@
-namespace DisplayClientDetails.Web.Settings;
+namespace CapturingDetails.Web.Settings;
 
 public class ApiSettings
 {

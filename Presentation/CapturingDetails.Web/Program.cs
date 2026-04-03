@@ -1,14 +1,11 @@
-using CapturingDetails.Web;
 using CapturingDetails.Web.Services;
 using CapturingDetails.Web.Services.ClientService;
-using DisplayClientDetails.Web.Settings;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using CapturingDetails.Web.Settings;
 using MudBlazor.Services;
 
-var builder = WebAssemblyHostBuilder.CreateDefault( args );
-builder.RootComponents.Add<App>( "#app" );
-builder.RootComponents.Add<HeadOutlet>( "head::after" );
+var builder = WebApplication.CreateBuilder( args );
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
 
 // Load configuration from appsettings.json
 var apiSettings = new ApiSettings();
@@ -21,4 +18,13 @@ builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddMudServices();
 
-await builder.Build().RunAsync();
+var app = builder.Build();
+
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.MapBlazorHub();
+app.MapFallbackToPage( "/_Host" );
+
+app.Run();
