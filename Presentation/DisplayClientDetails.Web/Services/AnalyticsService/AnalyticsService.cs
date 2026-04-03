@@ -2,7 +2,7 @@ using DisplayClientDetails.Web.Settings;
 using Domain.DTOs;
 using System.Net.Http.Json;
 
-namespace DisplayClientDetails.Web.Services.AnalyticsService.AnalyticsService;
+namespace DisplayClientDetails.Web.Services.AnalyticsService;
 
 public class AnalyticsService : IAnalyticsService
 {

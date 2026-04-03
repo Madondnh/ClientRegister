@@ -1,14 +1,10 @@
-using DisplayClientDetails.Web;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using MudBlazor.Services;
-using DisplayClientDetails.Web.Settings;
 using DisplayClientDetails.Web.Services.AnalyticsService;
-using DisplayClientDetails.Web.Services.AnalyticsService.AnalyticsService;
+using DisplayClientDetails.Web.Settings;
+using MudBlazor.Services;
 
-var builder = WebAssemblyHostBuilder.CreateDefault( args );
-builder.RootComponents.Add<App>( "#app" );
-builder.RootComponents.Add<HeadOutlet>( "head::after" );
+var builder = WebApplication.CreateBuilder( args );
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
 
 // Load configuration from appsettings.json
 var apiSettings = new ApiSettings();
@@ -17,6 +13,16 @@ builder.Configuration.Bind( "ApiSettings", apiSettings );
 builder.Services.AddScoped( sp => new HttpClient { BaseAddress = new Uri( sp.GetRequiredService<ApiSettings>().BaseClientManagerUrl ) } );
 builder.Services.AddMudServices();
 builder.Services.AddSingleton( apiSettings );
-builder.Services.AddScoped<IAnalyticsService, AnalyticsService >();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 
-await builder.Build().RunAsync();
+var app = builder.Build();
+
+
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.MapBlazorHub();
+app.MapFallbackToPage( "/_Host" );
+
+app.Run();
